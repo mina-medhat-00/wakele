@@ -1,25 +1,10 @@
-import { Link } from "expo-router";
-import { StyleSheet, Text, View } from "react-native";
+import "@/global.css";
+import { Text, View } from "react-native";
 
-export default function Index() {
+export default function App() {
   return (
-    <View style={styles.container}>
-      <Text style={styles.text}>Home screen</Text>
-      <Link href="/x" style={styles.text}>
-        About
-      </Link>
+    <View className="flex-1 items-center justify-center bg-white">
+      <Text className="text-xl font-bold text-blue-500">Welcome</Text>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#25292e",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  text: {
-    color: "#fff",
-  },
-});

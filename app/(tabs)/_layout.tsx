@@ -1,18 +1,14 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
+import Octicons from "@expo/vector-icons/Octicons";
 import { Tabs } from "expo-router";
 
 export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: "#ffd33d",
-        headerStyle: {
-          backgroundColor: "#25292e",
-        },
-        headerShadowVisible: false,
-        headerTintColor: "#fff",
+        tabBarActiveTintColor: "#538D4E",
         tabBarStyle: {
-          backgroundColor: "#25292e",
+          backgroundColor: "#121213",
         },
       }}
     >
@@ -20,6 +16,7 @@ export default function TabLayout() {
         name="index"
         options={{
           title: "Home",
+          headerShown: false,
           tabBarIcon: ({
             color,
             focused,
@@ -27,18 +24,19 @@ export default function TabLayout() {
             color: string;
             focused: boolean;
           }) => (
-            <Ionicons
-              name={focused ? "home-sharp" : "home-outline"}
-              color={color}
+            <Octicons
+              name={focused ? "home-fill" : "home"}
               size={24}
+              color={color}
             />
           ),
         }}
       />
       <Tabs.Screen
-        name="about"
+        name="wordle"
         options={{
-          title: "About",
+          title: "Wordle",
+          headerShown: false,
           tabBarIcon: ({
             color,
             focused,
@@ -50,8 +48,8 @@ export default function TabLayout() {
               name={
                 focused ? "information-circle" : "information-circle-outline"
               }
-              color={color}
               size={24}
+              color={color}
             />
           ),
         }}
