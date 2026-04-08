@@ -1,5 +1,5 @@
+import { Text, View } from "react-native";
 import { type CellData } from "@/hooks/useWordle";
-import { StyleSheet, Text, View } from "react-native";
 
 const CELL_COLORS: Record<string, string> = {
   correct: "#538d4e",
@@ -22,33 +22,33 @@ interface CellProps {
   shake: boolean;
 }
 
-const Cell = ({ cell, shake }: CellProps) => {
-  return (
-    <View
-      style={[
-        styles.cell,
-        {
-          backgroundColor: CELL_COLORS[cell.state],
-          borderColor: BORDER_COLORS[cell.state],
-        },
-        shake && styles.shake,
-      ]}
-    >
-      <Text style={styles.cellText}>{cell.char}</Text>
-    </View>
-  );
-};
-
 interface BoardProps {
   board: CellData[][];
   invalidRow: number | null;
 }
 
+const Cell = ({ cell, shake }: CellProps) => {
+  return (
+    <View
+      style={[
+        {
+          borderColor: BORDER_COLORS[cell.state],
+          backgroundColor: CELL_COLORS[cell.state],
+        },
+        shake && { borderColor: "#ff4444" },
+      ]}
+      className={`w-16 h-16 border-2 items-center justify-center`}
+    >
+      <Text className="text-white text-3xl font-bold">{cell.char}</Text>
+    </View>
+  );
+};
+
 export default function Board({ board, invalidRow }: BoardProps) {
   return (
-    <View style={styles.board}>
+    <View className="gap-2 items-center justify-center">
       {board.map((row, rowIdx) => (
-        <View key={rowIdx} style={styles.row}>
+        <View key={rowIdx} className="flex-row gap-2">
           {row.map((cell, colIdx) => (
             <Cell key={colIdx} cell={cell} shake={invalidRow === rowIdx} />
           ))}
@@ -57,33 +57,3 @@ export default function Board({ board, invalidRow }: BoardProps) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  board: {
-    gap: 6,
-    alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: 12,
-    paddingHorizontal: 8,
-  },
-  row: {
-    flexDirection: "row",
-    gap: 6,
-  },
-  cell: {
-    width: 56,
-    height: 56,
-    borderWidth: 2,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  cellText: {
-    color: "#ffffff",
-    fontSize: 24,
-    fontWeight: "bold",
-    letterSpacing: 1,
-  },
-  shake: {
-    borderColor: "#ff4444",
-  },
-});

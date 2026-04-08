@@ -1,5 +1,6 @@
+import { Text, TouchableOpacity, View } from "react-native";
+import Ionicons from "@expo/vector-icons/Ionicons";
 import { type LetterState } from "@/hooks/useWordle";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 const KEY_COLORS: Record<LetterState, string> = {
   correct: "#538d4e",
@@ -12,7 +13,7 @@ const KEY_COLORS: Record<LetterState, string> = {
 const ROWS = [
   ["Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P"],
   ["A", "S", "D", "F", "G", "H", "J", "K", "L"],
-  ["ENTER", "Z", "X", "C", "V", "B", "N", "M", "⌫"],
+  ["ENTER", "Z", "X", "C", "V", "B", "N", "M", "DELETE"],
 ];
 
 interface KeyProps {
@@ -21,35 +22,39 @@ interface KeyProps {
   onPress: () => void;
 }
 
-const Key = ({ label, state, onPress }: KeyProps) => {
-  const isWide = label === "ENTER" || label === "⌫";
-  return (
-    <TouchableOpacity
-      activeOpacity={0.7}
-      onPress={onPress}
-      style={[
-        styles.key,
-        { backgroundColor: KEY_COLORS[state] },
-        isWide && styles.keyWide,
-      ]}
-    >
-      <Text style={[styles.keyText, isWide && styles.keyTextWide]}>
-        {label}
-      </Text>
-    </TouchableOpacity>
-  );
-};
-
 interface KeyboardProps {
   letterStates: Record<string, LetterState>;
   onKey: (key: string) => void;
 }
 
+const Key = ({ label, state, onPress }: KeyProps) => {
+  const isWide = label === "ENTER" || label === "DELETE";
+
+  return (
+    <TouchableOpacity
+      activeOpacity={0.7}
+      onPress={onPress}
+      style={[{ backgroundColor: KEY_COLORS[state] }]}
+      className={`${isWide ? "w-14" : "w-10"} h-14 rounded-md items-center justify-center`}
+    >
+      {label === "DELETE" ? (
+        <Ionicons name="backspace-outline" size={24} color="white" />
+      ) : (
+        <Text
+          className={`text-white font-bold ${isWide ? "text-sm" : "text-xl"}`}
+        >
+          {label}
+        </Text>
+      )}
+    </TouchableOpacity>
+  );
+};
+
 export default function Keyboard({ letterStates, onKey }: KeyboardProps) {
   return (
-    <View style={styles.keyboard}>
+    <View className="w-full flex-col gap-2 p-3">
       {ROWS.map((row, rowIdx) => (
-        <View key={rowIdx} style={styles.row}>
+        <View key={rowIdx} className="flex-row justify-center gap-1">
           {row.map((label) => (
             <Key
               key={label}
@@ -63,36 +68,3 @@ export default function Keyboard({ letterStates, onKey }: KeyboardProps) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  keyboard: {
-    flexDirection: "column",
-    gap: 6,
-    width: "100%",
-    paddingHorizontal: 8,
-    paddingVertical: 10,
-  },
-  row: {
-    flexDirection: "row",
-    justifyContent: "center",
-    gap: 5,
-  },
-  key: {
-    height: 56,
-    width: 34,
-    borderRadius: 4,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  keyWide: {
-    width: 52,
-  },
-  keyText: {
-    color: "#ffffff",
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  keyTextWide: {
-    fontSize: 12,
-  },
-});

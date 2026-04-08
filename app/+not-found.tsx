@@ -6,12 +6,21 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function NotFoundScreen() {
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView className="flex-1 bg-primary-black">
       <View className="flex-1 justify-center items-center gap-4">
         <MaterialIcons name="report-gmailerrorred" size={80} color="white" />
-        <Text className="text-white text-2xl font-bold">Page not found</Text>
-        <Link href="/" className="bg-white p-4 rounded-lg w-full">
-          <Text className="text-black text-lg font-bold">Go back Home</Text>
+
+        <Text className="text-white text-xl font-bold text-center">
+          This page does not exist
+        </Text>
+
+        <Link
+          href="/"
+          className="bg-primary-green p-4 rounded-lg w-2/3 items-center justify-center"
+        >
+          <Text className="text-white text-xl font-bold text-center">
+            Go back Home
+          </Text>
         </Link>
       </View>
     </SafeAreaView>

@@ -45,9 +45,7 @@ export default function TabLayout() {
             focused: boolean;
           }) => (
             <Ionicons
-              name={
-                focused ? "information-circle" : "information-circle-outline"
-              }
+              name={focused ? "extension-puzzle" : "extension-puzzle-outline"}
               size={24}
               color={color}
             />

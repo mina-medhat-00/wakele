@@ -1,9 +1,9 @@
+import "@/global.css";
+import { Text, TouchableOpacity, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import Board from "@/components/wordle/Board";
 import Keyboard from "@/components/wordle/Keyboard";
 import { useWordle } from "@/hooks/useWordle";
-import "@/global.css";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function WordleScreen() {
   const {
@@ -20,41 +20,36 @@ export default function WordleScreen() {
 
   const handleKey = (key: string) => {
     if (key === "ENTER") submitGuess();
-    else if (key === "⌫") deleteLetter();
+    else if (key === "DELETE") deleteLetter();
     else addLetter(key);
   };
 
   return (
-    <SafeAreaView style={styles.safe} edges={["top"]}>
-      <View style={styles.container}>
-        {/* Header */}
-        <View style={styles.header}>
-          <Text style={styles.title}>WORDLE</Text>
-        </View>
-
-        {/* Game status banner */}
-        {gameStatus === "won" && (
-          <View style={styles.banner}>
-            <Text style={styles.bannerTextWon}>
-              Genius! The word was {targetWord}
-            </Text>
-            <TouchableOpacity onPress={resetGame} style={styles.playAgainBtn}>
-              <Text style={styles.playAgainText}>Play Again</Text>
-            </TouchableOpacity>
-          </View>
-        )}
-        {gameStatus === "lost" && (
-          <View style={styles.banner}>
-            <Text style={styles.bannerTextLost}>The word was {targetWord}</Text>
-            <TouchableOpacity onPress={resetGame} style={styles.playAgainBtn}>
-              <Text style={styles.playAgainText}>Play Again</Text>
-            </TouchableOpacity>
-          </View>
-        )}
-
+    <SafeAreaView className="flex-1 bg-primary-black" edges={["top"]}>
+      <View className="flex-1 justify-space-between items-center">
         {/* Board */}
-        <View style={styles.boardWrapper}>
+        <View className="flex-1 justify-center items-center w-full">
           <Board board={board} invalidRow={invalidRow} />
+
+          {/* Game status banner */}
+          {gameStatus !== "playing" && (
+            <View className="mt-4 gap-2 w-full items-center justify-center">
+              <View className="bg-white p-2 rounded-md items-center justify-center">
+                <Text className="text-black text-lg font-bold">
+                  {targetWord}
+                </Text>
+              </View>
+
+              <TouchableOpacity
+                className="bg-primary-green py-2 w-1/2 rounded-md"
+                onPress={resetGame}
+              >
+                <Text className="text-white text-lg font-bold text-center">
+                  RETRY
+                </Text>
+              </TouchableOpacity>
+            </View>
+          )}
         </View>
 
         {/* Keyboard */}
@@ -63,59 +58,3 @@ export default function WordleScreen() {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  safe: {
-    flex: 1,
-    backgroundColor: "#121213",
-  },
-  container: {
-    flex: 1,
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  header: {
-    width: "100%",
-    borderBottomWidth: 1,
-    borderBottomColor: "#3a3a3c",
-    paddingVertical: 12,
-    alignItems: "center",
-  },
-  title: {
-    color: "#ffffff",
-    fontSize: 22,
-    fontWeight: "bold",
-    letterSpacing: 6,
-  },
-  boardWrapper: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  banner: {
-    alignItems: "center",
-    gap: 8,
-    paddingVertical: 8,
-  },
-  bannerTextWon: {
-    color: "#538d4e",
-    fontSize: 18,
-    fontWeight: "bold",
-  },
-  bannerTextLost: {
-    color: "#b59f3b",
-    fontSize: 18,
-    fontWeight: "bold",
-  },
-  playAgainBtn: {
-    backgroundColor: "#538d4e",
-    paddingHorizontal: 20,
-    paddingVertical: 8,
-    borderRadius: 6,
-  },
-  playAgainText: {
-    color: "#ffffff",
-    fontSize: 14,
-    fontWeight: "bold",
-  },
-});

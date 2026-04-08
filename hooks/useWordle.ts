@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import { ANSWER_WORDS, VALID_GUESSES } from "@/constants/wordle/words";
+import { ANSWER_WORDS } from "@/constants/words";
 
 export type LetterState = "correct" | "present" | "absent" | "tbd" | "empty";
 
@@ -9,6 +9,14 @@ export interface CellData {
 }
 
 export type GameStatus = "playing" | "won" | "lost";
+
+const STATE_PRIORITY: Record<LetterState, number> = {
+  correct: 3,
+  present: 2,
+  absent: 1,
+  tbd: 0,
+  empty: 0,
+};
 
 const WORD_LENGTH = 5;
 const MAX_GUESSES = 6;
@@ -54,14 +62,6 @@ function evaluateGuess(guess: string, target: string): LetterState[] {
   return result;
 }
 
-const STATE_PRIORITY: Record<LetterState, number> = {
-  correct: 3,
-  present: 2,
-  absent: 1,
-  tbd: 0,
-  empty: 0,
-};
-
 export function useWordle() {
   const [targetWord, setTargetWord] = useState<string>(pickRandomWord);
   const [board, setBoard] = useState<CellData[][]>(createEmptyBoard);
@@ -106,10 +106,8 @@ export function useWordle() {
 
     const guess = board[currentRow].map((c) => c.char).join("");
 
-    const allValidWords = [
-      ...ANSWER_WORDS.map((w) => w.toUpperCase()),
-      ...VALID_GUESSES.map((w) => w.toUpperCase()),
-    ];
+    const allValidWords = ANSWER_WORDS.map((w) => w.toUpperCase());
+
     if (!allValidWords.includes(guess)) {
       setInvalidRow(currentRow);
       setTimeout(() => setInvalidRow(null), 600);
