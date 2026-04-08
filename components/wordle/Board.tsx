@@ -1,4 +1,12 @@
+import { useEffect } from "react";
 import { Text, View } from "react-native";
+import Animated from "react-native-reanimated";
+import {
+  useSharedValue,
+  withSequence,
+  withTiming,
+  useAnimatedStyle,
+} from "react-native-reanimated";
 import { type CellData } from "@/hooks/useWordle";
 
 const CELL_COLORS: Record<string, string> = {
@@ -28,19 +36,37 @@ interface BoardProps {
 }
 
 const Cell = ({ cell, shake }: CellProps) => {
+  const translateX = useSharedValue(0);
+
+  useEffect(() => {
+    if (shake) {
+      translateX.value = withSequence(
+        withTiming(-8, { duration: 60 }),
+        withTiming(8, { duration: 60 }),
+        withTiming(-8, { duration: 60 }),
+        withTiming(8, { duration: 60 }),
+        withTiming(0, { duration: 60 }),
+      );
+    }
+  }, [shake]);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ translateX: translateX.value }],
+  }));
+
   return (
-    <View
+    <Animated.View
       style={[
         {
           borderColor: BORDER_COLORS[cell.state],
           backgroundColor: CELL_COLORS[cell.state],
         },
-        shake && { borderColor: "#ff4444" },
+        animatedStyle,
       ]}
-      className={`w-16 h-16 border-2 items-center justify-center`}
+      className="w-16 h-16 border-2 items-center justify-center"
     >
       <Text className="text-white text-3xl font-bold">{cell.char}</Text>
-    </View>
+    </Animated.View>
   );
 };
 

@@ -2,14 +2,23 @@ import { useCallback, useState } from "react";
 import { ANSWER_WORDS } from "@/constants/words";
 
 export type LetterState = "correct" | "present" | "absent" | "tbd" | "empty";
+export type GameStatus = "playing" | "won" | "lost";
 
 export interface CellData {
   char: string;
   state: LetterState;
 }
 
-export type GameStatus = "playing" | "won" | "lost";
-
+const WORD_LENGTH = 5;
+const MAX_GUESSES = 6;
+const REVIEW_WORDS = [
+  "Genius",
+  "Magnificent",
+  "Impressive",
+  "Splendid",
+  "Great",
+  "Phew",
+];
 const STATE_PRIORITY: Record<LetterState, number> = {
   correct: 3,
   present: 2,
@@ -17,9 +26,6 @@ const STATE_PRIORITY: Record<LetterState, number> = {
   tbd: 0,
   empty: 0,
 };
-
-const WORD_LENGTH = 5;
-const MAX_GUESSES = 6;
 
 function pickRandomWord(): string {
   const filtered = ANSWER_WORDS.filter((w) => w.length === WORD_LENGTH);
@@ -68,10 +74,12 @@ export function useWordle() {
   const [currentRow, setCurrentRow] = useState(0);
   const [currentCol, setCurrentCol] = useState(0);
   const [gameStatus, setGameStatus] = useState<GameStatus>("playing");
+  const [review, setReview] = useState<string>("");
+  const [invalidRow, setInvalidRow] = useState<number | null>(null);
+  const [isInvalid, setIsInvalid] = useState(false);
   const [letterStates, setLetterStates] = useState<Record<string, LetterState>>(
     {},
   );
-  const [invalidRow, setInvalidRow] = useState<number | null>(null);
 
   const addLetter = useCallback(
     (letter: string) => {
@@ -110,7 +118,9 @@ export function useWordle() {
 
     if (!allValidWords.includes(guess)) {
       setInvalidRow(currentRow);
-      setTimeout(() => setInvalidRow(null), 600);
+      setIsInvalid(true);
+      setTimeout(() => setInvalidRow(null), 3000);
+      setTimeout(() => setIsInvalid(false), 3000);
       return;
     }
 
@@ -139,6 +149,8 @@ export function useWordle() {
     });
 
     if (guess === targetWord) {
+      setReview(REVIEW_WORDS[currentRow]);
+      setTimeout(() => setReview(""), 3000);
       setGameStatus("won");
     } else if (currentRow + 1 >= MAX_GUESSES) {
       setGameStatus("lost");
@@ -165,9 +177,11 @@ export function useWordle() {
     gameStatus,
     targetWord,
     invalidRow,
+    isInvalid,
     addLetter,
     deleteLetter,
     submitGuess,
     resetGame,
+    review,
   };
 }

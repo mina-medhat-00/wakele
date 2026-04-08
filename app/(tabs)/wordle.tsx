@@ -12,10 +12,12 @@ export default function WordleScreen() {
     gameStatus,
     targetWord,
     invalidRow,
+    isInvalid,
     addLetter,
     deleteLetter,
     submitGuess,
     resetGame,
+    review,
   } = useWordle();
 
   const handleKey = (key: string) => {
@@ -28,17 +30,19 @@ export default function WordleScreen() {
     <SafeAreaView className="flex-1 bg-primary-black" edges={["top"]}>
       <View className="flex-1 justify-space-between items-center">
         {/* Board */}
-        <View className="flex-1 justify-center items-center w-full">
+        <View className="flex-1 justify-center items-center w-full gap-2">
           <Board board={board} invalidRow={invalidRow} />
 
           {/* Game status banner */}
           {gameStatus !== "playing" && (
             <View className="mt-4 gap-2 w-full items-center justify-center">
-              <View className="bg-white p-2 rounded-md items-center justify-center">
-                <Text className="text-black text-lg font-bold">
-                  {targetWord}
-                </Text>
-              </View>
+              {gameStatus === "lost" && (
+                <View className="bg-white p-2 rounded-md items-center justify-center">
+                  <Text className="text-black text-lg font-bold">
+                    {targetWord}
+                  </Text>
+                </View>
+              )}
 
               <TouchableOpacity
                 className="bg-primary-green py-2 w-1/2 rounded-md"
@@ -51,6 +55,22 @@ export default function WordleScreen() {
             </View>
           )}
         </View>
+
+        {isInvalid && (
+          <View className="bg-white p-2 rounded-md absolute top-10">
+            <Text className="text-black text-lg font-bold text-center">
+              Not in word list
+            </Text>
+          </View>
+        )}
+
+        {review && (
+          <View className="bg-white p-2 rounded-md absolute top-10">
+            <Text className="text-black text-lg font-bold text-center">
+              {review}
+            </Text>
+          </View>
+        )}
 
         {/* Keyboard */}
         <Keyboard letterStates={letterStates} onKey={handleKey} />
