@@ -1,7 +1,9 @@
 {
   "name": "wakele",
-  "main": "index.js",
+  "type": "module",
+  "main": "expo-router/entry",
   "version": "1.0.0",
+  "private": true,
   "scripts": {
     "start": "expo start",
     "android": "expo run:android",
@@ -9,9 +11,6 @@
     "web": "expo start --web",
     "lint": "expo lint",
     "prepare": "husky"
-  },
-  "lint-staged": {
-    "**/*": "prettier --write --ignore-unknown"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",
@@ -61,10 +60,12 @@
     "prettier": "^3.8.1",
     "typescript": "~6.0.3"
   },
-  "private": true,
   "overrides": {
     "@expo/fingerprint": {
       "minimatch": "^11.0.1"
     }
+  },
+  "lint-staged": {
+    "**/*": "prettier --write --ignore-unknown"
   }
 }
