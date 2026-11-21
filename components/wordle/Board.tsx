@@ -1,7 +1,6 @@
 import { useEffect } from "react";
 import { Text, View } from "react-native";
-import Animated from "react-native-reanimated";
-import {
+import Animated, {
   useSharedValue,
   withSequence,
   withTiming,
@@ -48,7 +47,7 @@ const Cell = ({ cell, shake }: CellProps) => {
         withTiming(0, { duration: 60 }),
       );
     }
-  }, [shake]);
+  }, [shake, translateX]);
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ translateX: translateX.value }],

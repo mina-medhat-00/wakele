@@ -12,7 +12,11 @@ export async function saveAlarm(alarm: Alarm): Promise<void> {
   const alarms = await getAlarms();
   const index = alarms.findIndex((a) => a.id === alarm.id);
 
-  index >= 0 ? (alarms[index] = alarm) : alarms.push(alarm);
+  if (index >= 0) {
+    alarms[index] = alarm;
+  } else {
+    alarms.push(alarm);
+  }
 
   await AsyncStorage.setItem(ALARMS_KEY, JSON.stringify(alarms));
 }

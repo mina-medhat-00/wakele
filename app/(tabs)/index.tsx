@@ -1,8 +1,9 @@
 import "@/global.css";
-import { useEffect, useState } from "react";
-import { Text, TouchableOpacity, View } from "react-native";
+import { useCallback, useState } from "react";
+import { ScrollView, Switch, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import DateTimePickerModal from "react-native-modal-datetime-picker";
+import Ionicons from "@expo/vector-icons/Ionicons";
+import { useFocusEffect } from "expo-router";
 import { format } from "date-fns";
 import { deleteAlarm, getAlarms, saveAlarm } from "@/utils/alarmStorage";
 import {
@@ -11,28 +12,77 @@ import {
   scheduleAlarmNotification,
 } from "@/utils/alarmScheduler";
 import { Alarm } from "@/types/types";
+import TimePicker from "@/components/clock/TimePicker";
 
-export default function App() {
+const DAY_NAMES = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+function repeatLabel(days: number[]) {
+  if (days.length === 0) return "Once";
+  if (days.length === 7) return "Every day";
+  return days.map((d) => DAY_NAMES[d]).join(", ");
+}
+
+function AlarmCard({
+  alarm,
+  onToggle,
+  onDelete,
+}: {
+  alarm: Alarm;
+  onToggle: () => void;
+  onDelete: () => void;
+}) {
+  return (
+    <View className="flex-row items-center justify-between rounded-2xl border border-primary-grey bg-[#1E1E20] px-5 py-4">
+      <View className="flex-1">
+        <Text
+          className={`text-5xl font-bold ${alarm.enabled ? "text-white" : "text-[#A1A1A6]"}`}
+        >
+          {alarm.time}
+        </Text>
+        <Text className="mt-1 text-base text-[#D7DADC]">
+          {alarm.label} · {repeatLabel(alarm.days)}
+        </Text>
+      </View>
+
+      <View className="flex-row items-center gap-4">
+        <TouchableOpacity
+          accessibilityLabel={`Delete ${alarm.time} alarm`}
+          hitSlop={10}
+          onPress={onDelete}
+        >
+          <Ionicons name="trash-outline" size={22} color="#D7DADC" />
+        </TouchableOpacity>
+        <Switch
+          accessibilityLabel={`Turn ${alarm.time} alarm ${alarm.enabled ? "off" : "on"}`}
+          value={alarm.enabled}
+          onValueChange={onToggle}
+          trackColor={{ false: "#565758", true: "#538D4E" }}
+          thumbColor="#FFFFFF"
+        />
+      </View>
+    </View>
+  );
+}
+
+export default function AlarmScreen() {
   const [isTimePickerVisible, setTimePickerVisibility] = useState(false);
   const [alarms, setAlarms] = useState<Alarm[]>([]);
 
-  useEffect(() => {
-    getAlarms().then(setAlarms);
-  }, []);
-
-  const showTimePicker = () => {
-    setTimePickerVisibility(true);
-  };
-
-  const hideTimePicker = () => {
-    setTimePickerVisibility(false);
-  };
+  // Reload on focus so alarms dismissed on the ring screen show their new state.
+  useFocusEffect(
+    useCallback(() => {
+      getAlarms().then(setAlarms);
+    }, []),
+  );
 
   const toggleAlarm = async (alarm: Alarm) => {
-    if (alarm.enabled && alarm.notificationId) {
-      await cancelAlarmNotification(alarm.notificationId);
+    if (alarm.enabled) {
+      if (alarm.notificationId) {
+        await cancelAlarmNotification(alarm.notificationId);
+      }
       await saveAlarm({ ...alarm, enabled: false, notificationId: null });
     } else {
+      if (!(await requestPermissions())) return;
       const notificationId = await scheduleAlarmNotification(alarm);
       await saveAlarm({ ...alarm, enabled: true, notificationId });
     }
@@ -49,62 +99,69 @@ export default function App() {
     setAlarms(await getAlarms());
   };
 
-  const handleConfirm = async (date: Date) => {
-    const timeString = format(date, "HH:mm");
-    const granted = await requestPermissions();
+  const hideTimePicker = () => setTimePickerVisibility(false);
 
-    if (!granted) {
-      return;
-    }
+  const handleConfirm = async (date: Date) => {
+    setTimePickerVisibility(false);
+
+    if (!(await requestPermissions())) return;
 
     const newAlarm: Alarm = {
       id: Date.now().toString(),
-      time: timeString,
+      time: format(date, "HH:mm"),
       label: "Alarm",
       enabled: true,
       days: [],
       notificationId: null,
     };
 
-    // Schedule the OS notification
-    const notificationId = await scheduleAlarmNotification(newAlarm);
-    newAlarm.notificationId = notificationId;
-
-    // Persist to AsyncStorage
+    newAlarm.notificationId = await scheduleAlarmNotification(newAlarm);
     await saveAlarm(newAlarm);
-
-    setAlarms((prev) => [...prev, newAlarm]);
-    hideTimePicker();
+    setAlarms(await getAlarms());
   };
+
+  const sortedAlarms = [...alarms].sort((a, b) => a.time.localeCompare(b.time));
 
   return (
     <SafeAreaView className="flex-1 bg-primary-black" edges={["top"]}>
-      <View className="flex-1 items-center justify-center">
+      <View className="px-5 pb-4 pt-6">
+        <Text className="text-4xl font-bold text-white">Alarms</Text>
+      </View>
+
+      {sortedAlarms.length === 0 ? (
+        <View className="flex-1 items-center justify-center gap-3 px-10">
+          <Ionicons name="alarm-outline" size={64} color="#818384" />
+          <Text className="text-xl font-bold text-white">No alarms yet</Text>
+        </View>
+      ) : (
+        <ScrollView contentContainerClassName="gap-3 px-5 pb-4">
+          {sortedAlarms.map((alarm) => (
+            <AlarmCard
+              key={alarm.id}
+              alarm={alarm}
+              onToggle={() => toggleAlarm(alarm)}
+              onDelete={() => removeAlarm(alarm)}
+            />
+          ))}
+        </ScrollView>
+      )}
+
+      <View className="px-5 pb-5 pt-2">
         <TouchableOpacity
           activeOpacity={0.7}
-          className="bg-primary-green py-2 px-4 rounded-md"
-          onPress={showTimePicker}
+          className="flex-row items-center justify-center gap-2 rounded-xl bg-primary-green py-4"
+          onPress={() => setTimePickerVisibility(true)}
         >
-          <Text className="text-white font-bold text-lg">Pick Time</Text>
+          <Ionicons name="add" size={24} color="white" />
+          <Text className="text-lg font-bold text-white">Add alarm</Text>
         </TouchableOpacity>
-
-        {alarms.map((alarm) => (
-          <View key={alarm.id} className="bg-white mb-2">
-            <Text>Time: {alarm.time}</Text>
-            <Text>Label: {alarm.label}</Text>
-            <Text>Enabled: {alarm.enabled}</Text>
-            <Text>Days: {alarm.days.join(", ")}</Text>
-          </View>
-        ))}
-
-        <DateTimePickerModal
-          isVisible={isTimePickerVisible}
-          mode="time"
-          onConfirm={(date) => handleConfirm(date)}
-          onCancel={hideTimePicker}
-          timePickerModeAndroid="clock"
-        />
       </View>
+
+      <TimePicker
+        visible={isTimePickerVisible}
+        onConfirm={handleConfirm}
+        onCancel={hideTimePicker}
+      />
     </SafeAreaView>
   );
 }

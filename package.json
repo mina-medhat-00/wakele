@@ -1,6 +1,5 @@
 {
   "name": "wakele",
-  "type": "module",
   "main": "expo-router/entry",
   "version": "1.0.0",
   "private": true,
@@ -22,6 +21,7 @@
     "babel-preset-expo": "~58.0.0",
     "date-fns": "^4.1.0",
     "expo": "~58.0.26",
+    "expo-audio": "~58.0.12",
     "expo-background-fetch": "~58.0.13",
     "expo-constants": "~58.0.16",
     "expo-font": "~58.0.12",
@@ -42,7 +42,6 @@
     "react-dom": "19.3.0",
     "react-native": "0.88.1",
     "react-native-gesture-handler": "~3.3.0",
-    "react-native-modal-datetime-picker": "^18.0.0",
     "react-native-reanimated": "4.7.1",
     "react-native-safe-area-context": "~5.11.1",
     "react-native-screens": "~4.30.1",

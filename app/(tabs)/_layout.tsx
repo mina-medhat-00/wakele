@@ -1,39 +1,26 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
-import Octicons from "@expo/vector-icons/Octicons";
 import { Tabs } from "expo-router";
 
 export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
+        headerShown: false,
         tabBarActiveTintColor: "#538D4E",
+        tabBarInactiveTintColor: "#D7DADC",
         tabBarStyle: {
           backgroundColor: "#121213",
+          borderTopColor: "#3A3A3C",
         },
       }}
     >
       <Tabs.Screen
         name="index"
         options={{
-          title: "Home",
-          headerShown: false,
-          tabBarIcon: ({ color, focused }) => (
-            <Octicons
-              name={focused ? "home-fill" : "home"}
-              size={24}
-              color={color as string}
-            />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="wordle"
-        options={{
-          title: "Wordle",
-          headerShown: false,
+          title: "Alarm",
           tabBarIcon: ({ color, focused }) => (
             <Ionicons
-              name={focused ? "extension-puzzle" : "extension-puzzle-outline"}
+              name={focused ? "alarm" : "alarm-outline"}
               size={24}
               color={color as string}
             />
