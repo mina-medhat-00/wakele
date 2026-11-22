@@ -5,7 +5,7 @@
 - install the dependencies
 
 ```bash
-yarn install
+npm install
 ```
 
 - run the project

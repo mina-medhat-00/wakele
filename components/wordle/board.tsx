@@ -1,42 +1,45 @@
 import { useEffect } from "react";
 import { Text, View } from "react-native";
 import Animated, {
+  useAnimatedStyle,
   useSharedValue,
   withSequence,
   withTiming,
-  useAnimatedStyle,
 } from "react-native-reanimated";
-import { type CellData } from "@/hooks/useWordle";
+import { COLORS } from "@/constants/colors";
+import { MAX_GUESSES, WORD_LENGTH } from "@/utils/wordle-game";
+import type { BoardProps, CellProps, LetterState } from "@/types/wordle";
 
-const CELL_COLORS: Record<string, string> = {
-  correct: "#538d4e",
-  present: "#b59f3b",
-  absent: "#3a3a3c",
-  tbd: "transparent",
-  empty: "transparent",
+const CELL_COLORS: Record<LetterState, string> = {
+  correct: COLORS.green,
+  present: COLORS.yellow,
+  absent: COLORS.grey,
+  tbd: COLORS.transparent,
+  empty: COLORS.transparent,
 };
 
-const BORDER_COLORS: Record<string, string> = {
-  correct: "#538d4e",
-  present: "#b59f3b",
-  absent: "#3a3a3c",
-  tbd: "#565758",
-  empty: "#3a3a3c",
+const BORDER_COLORS: Record<LetterState, string> = {
+  correct: COLORS.green,
+  present: COLORS.yellow,
+  absent: COLORS.grey,
+  tbd: COLORS.greyMid,
+  empty: COLORS.grey,
 };
 
-interface CellProps {
-  cell: CellData;
-  shake: boolean;
-}
+// Rows and columns are fixed positions on the board, so they get fixed keys.
+const ROW_KEYS = Array.from(
+  { length: MAX_GUESSES },
+  (_, i) => `row-${String(i)}`,
+);
+const COL_KEYS = Array.from(
+  { length: WORD_LENGTH },
+  (_, i) => `col-${String(i)}`,
+);
 
-interface BoardProps {
-  board: CellData[][];
-  invalidRow: number | null;
-}
-
-const Cell = ({ cell, shake }: CellProps) => {
+function Cell({ cell, shake, shakeKey }: CellProps): React.JSX.Element {
   const translateX = useSharedValue(0);
 
+  // `shakeKey` changes on every rejected guess, so repeated rejections shake again.
   useEffect(() => {
     if (shake) {
       translateX.value = withSequence(
@@ -47,7 +50,7 @@ const Cell = ({ cell, shake }: CellProps) => {
         withTiming(0, { duration: 60 }),
       );
     }
-  }, [shake, translateX]);
+  }, [shake, shakeKey, translateX]);
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ translateX: translateX.value }],
@@ -62,20 +65,29 @@ const Cell = ({ cell, shake }: CellProps) => {
         },
         animatedStyle,
       ]}
-      className="w-16 h-16 border-2 items-center justify-center"
+      className="h-16 w-16 items-center justify-center border-2"
     >
-      <Text className="text-white text-3xl font-bold">{cell.char}</Text>
+      <Text className="text-3xl font-bold text-white">{cell.char}</Text>
     </Animated.View>
   );
-};
+}
 
-export default function Board({ board, invalidRow }: BoardProps) {
+export default function Board({
+  board,
+  invalidRow,
+  shakeKey,
+}: BoardProps): React.JSX.Element {
   return (
-    <View className="gap-2 items-center justify-center">
-      {board.map((row, rowIdx) => (
-        <View key={rowIdx} className="flex-row gap-2">
-          {row.map((cell, colIdx) => (
-            <Cell key={colIdx} cell={cell} shake={invalidRow === rowIdx} />
+    <View className="items-center justify-center gap-2">
+      {ROW_KEYS.map((rowKey, rowIdx) => (
+        <View key={rowKey} className="flex-row gap-2">
+          {COL_KEYS.map((colKey, colIdx) => (
+            <Cell
+              key={colKey}
+              cell={board[rowIdx]?.[colIdx] ?? { char: "", state: "empty" }}
+              shake={invalidRow === rowIdx}
+              shakeKey={shakeKey}
+            />
           ))}
         </View>
       ))}

@@ -2,20 +2,27 @@ import { useEffect } from "react";
 import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import { useAlarmRinging } from "@/hooks/useAlarmRinging";
+import { useAlarmRinging } from "@/hooks/use-alarm-ringing";
+import { syncAlarms } from "@/utils/alarm-scheduler";
+import LIBRE_FRANKLIN_REGULAR from "@/assets/fonts/libre-franklin-regular.otf";
 
-SplashScreen.preventAutoHideAsync();
+void SplashScreen.preventAutoHideAsync();
 
-export default function RootLayout() {
+export default function RootLayout(): React.JSX.Element | null {
   const [loaded] = useFonts({
-    "LibreFranklin-Regular": require("../assets/fonts/LibreFranklin-Regular.otf"),
+    "LibreFranklin-Regular": LIBRE_FRANKLIN_REGULAR,
   });
 
   useAlarmRinging(loaded);
 
+  // Re-arm anything Android dropped (e.g. after a force-stop) as soon as the app opens.
+  useEffect(() => {
+    void syncAlarms();
+  }, []);
+
   useEffect(() => {
     if (loaded) {
-      SplashScreen.hideAsync();
+      void SplashScreen.hideAsync();
     }
   }, [loaded]);
 

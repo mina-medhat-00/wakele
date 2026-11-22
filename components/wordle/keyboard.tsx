@@ -1,13 +1,14 @@
 import { Text, TouchableOpacity, View } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { type LetterState } from "@/hooks/useWordle";
+import { COLORS } from "@/constants/colors";
+import type { KeyboardProps, KeyProps, LetterState } from "@/types/wordle";
 
 const KEY_COLORS: Record<LetterState, string> = {
-  correct: "#538d4e",
-  present: "#b59f3b",
-  absent: "#3a3a3c",
-  tbd: "#818384",
-  empty: "#818384",
+  correct: COLORS.green,
+  present: COLORS.yellow,
+  absent: COLORS.grey,
+  tbd: COLORS.greyKey,
+  empty: COLORS.greyKey,
 };
 
 const ROWS = [
@@ -16,29 +17,18 @@ const ROWS = [
   ["ENTER", "Z", "X", "C", "V", "B", "N", "M", "DELETE"],
 ];
 
-interface KeyProps {
-  label: string;
-  state: LetterState;
-  onPress: () => void;
-}
-
-interface KeyboardProps {
-  letterStates: Record<string, LetterState>;
-  onKey: (key: string) => void;
-}
-
-const Key = ({ label, state, onPress }: KeyProps) => {
+function Key({ label, state, onPress }: KeyProps): React.JSX.Element {
   const isWide = label === "ENTER" || label === "DELETE";
 
   return (
     <TouchableOpacity
       activeOpacity={0.7}
       onPress={onPress}
-      style={[{ backgroundColor: KEY_COLORS[state] }]}
+      style={{ backgroundColor: KEY_COLORS[state] }}
       className={`${isWide ? "w-14" : "w-10"} h-14 rounded-md items-center justify-center`}
     >
       {label === "DELETE" ? (
-        <Ionicons name="backspace-outline" size={24} color="white" />
+        <Ionicons name="backspace-outline" size={24} color={COLORS.white} />
       ) : (
         <Text
           className={`text-white font-bold ${isWide ? "text-sm" : "text-xl"}`}
@@ -48,19 +38,24 @@ const Key = ({ label, state, onPress }: KeyProps) => {
       )}
     </TouchableOpacity>
   );
-};
+}
 
-export default function Keyboard({ letterStates, onKey }: KeyboardProps) {
+export default function Keyboard({
+  letterStates,
+  onKey,
+}: KeyboardProps): React.JSX.Element {
   return (
     <View className="w-full flex-col gap-2 p-3">
-      {ROWS.map((row, rowIdx) => (
-        <View key={rowIdx} className="flex-row justify-center gap-1">
+      {ROWS.map((row) => (
+        <View key={row.join("")} className="flex-row justify-center gap-1">
           {row.map((label) => (
             <Key
               key={label}
               label={label}
               state={letterStates[label] ?? "empty"}
-              onPress={() => onKey(label)}
+              onPress={() => {
+                onKey(label);
+              }}
             />
           ))}
         </View>
