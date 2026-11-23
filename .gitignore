@@ -43,3 +43,6 @@ app-example
 # local Expo module build output
 modules/*/android/build/
 modules/*/android/.gradle/
+
+# environment variables
+.env
